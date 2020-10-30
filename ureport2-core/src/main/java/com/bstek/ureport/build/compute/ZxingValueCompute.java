@@ -24,6 +24,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.oned.Code128Writer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Base64Utils;
@@ -117,7 +119,7 @@ public class ZxingValueCompute implements ValueCompute {
 		return list;
 	}
 	
-	private Image buildImage(BarcodeFormat format,String data,int w,int h){
+	private Image buildImage1(BarcodeFormat format,String data,int w,int h){
         try{
         	Map<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();  
             hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
@@ -143,6 +145,48 @@ public class ZxingValueCompute implements ValueCompute {
         }catch(Exception ex){
         	throw new ReportComputeException(ex);
         }
+	}
+
+	private Image buildImage(BarcodeFormat format,String data,int w,int h){
+		try{
+			Map<EncodeHintType, Object> hints = new Hashtable<>();
+			hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+			hints.put(EncodeHintType.MARGIN,0);
+			if(format.equals(BarcodeFormat.QR_CODE)){
+				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+			}
+
+			//为了无边距，需设置宽度为条码自动生成规则的宽度
+			int width = new Code128Writer().encode(data).length;
+			//前端可控制高度，不影响识别
+			int height = h;
+			//条码放大倍数
+			int codeMultiples = 1;
+			//获取条码内容的宽，不含两边距，当EncodeHintType.MARGIN为0时即为条码宽度
+			int codeWidth = width * codeMultiples;
+
+
+			BitMatrix matrix = new MultiFormatWriter().encode(data,format, codeWidth, h,hints);
+			//  int width = matrix.getWidth();
+			//  int height = matrix.getHeight();
+			//  BufferedImage image = new BufferedImage(width, height,BufferedImage.TYPE_INT_ARGB);
+			//  for (int x = 0; x < width; x++) {
+			//      for (int y = 0; y < height; y++) {
+			//            image.setRGB(x, y, matrix.get(x, y) ? BLACK : WHITE);
+			//       }
+			//  }
+			BufferedImage image = MatrixToImageWriter.toBufferedImage(matrix);
+
+
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ImageIO.write(image, "gif", outputStream);
+			byte[] bytes=outputStream.toByteArray();
+			String base64Data=Base64Utils.encodeToString(bytes);
+			IOUtils.closeQuietly(outputStream);
+			return new Image(base64Data,w,h);
+		}catch(Exception ex){
+			throw new ReportComputeException(ex);
+		}
 	}
 
 	@Override
