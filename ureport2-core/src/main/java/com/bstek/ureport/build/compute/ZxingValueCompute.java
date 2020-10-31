@@ -16,7 +16,7 @@
 package com.bstek.ureport.build.compute;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -27,7 +27,11 @@ import javax.imageio.ImageIO;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.oned.Code128Writer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.krysalis.barcode4j.HumanReadablePlacement;
+import org.krysalis.barcode4j.impl.code128.Code128Bean;
+import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.springframework.util.Base64Utils;
 
 import com.bstek.ureport.build.BindData;
@@ -118,8 +122,16 @@ public class ZxingValueCompute implements ValueCompute {
 		}
 		return list;
 	}
-	
-	private Image buildImage1(BarcodeFormat format,String data,int w,int h){
+
+	/***
+	 * ureport源码方法
+	 * @param format
+	 * @param data
+	 * @param w
+	 * @param h
+	 * @return
+	 */
+	private Image buildImageSelf(BarcodeFormat format,String data,int w,int h){
         try{
         	Map<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();  
             hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
@@ -147,6 +159,15 @@ public class ZxingValueCompute implements ValueCompute {
         }
 	}
 
+	/***
+	 * 导入com.google.zxing.javase包
+	 * 条形码宽度不受页面单元格宽度变化，只和内容长度有关
+	 * @param format
+	 * @param data
+	 * @param w
+	 * @param h
+	 * @return
+	 */
 	private Image buildImage(BarcodeFormat format,String data,int w,int h){
 		try{
 			Map<EncodeHintType, Object> hints = new Hashtable<>();
@@ -187,6 +208,66 @@ public class ZxingValueCompute implements ValueCompute {
 		}catch(Exception ex){
 			throw new ReportComputeException(ex);
 		}
+	}
+
+	/***
+	 * 使用barcode4j
+	 * @param format
+	 * @param data
+	 * @param w
+	 * @param h
+	 * @return
+	 */
+	private Image buildImageBarcode(BarcodeFormat format,String data,int w,int h){
+		System.out.println("----------build image---------------");
+		double width = 0.05;
+		double height = 1.0;
+		double fontSize = 1.0;
+		Boolean hideText = true;
+
+		Code128Bean bean = new Code128Bean();
+		// 分辨率
+		int dpi = 512;
+		// 设置两侧是否留白
+		bean.doQuietZone(false);
+
+		// 设置条形码高度和宽度
+		bean.setBarHeight(ObjectUtils.defaultIfNull(height, 9.0D));
+		bean.setModuleWidth(width);
+		// 设置文本位置（包括是否显示）
+		if (hideText) {
+			bean.setMsgPosition(HumanReadablePlacement.HRP_NONE);
+		}else {
+			bean.setFontSize(fontSize);
+		}
+		// 设置图片类型
+		String formats = "image/png";
+
+		ByteArrayOutputStream ous = new ByteArrayOutputStream();
+		BitmapCanvasProvider canvas = new BitmapCanvasProvider(ous, formats, dpi,
+				BufferedImage.TYPE_BYTE_BINARY, false, 0);
+
+		// 生产条形码
+		bean.generateBarcode(canvas, data);
+		try {
+			canvas.finish();
+		} catch (IOException e) {
+
+		}
+		byte[] bytes = ous.toByteArray();
+
+		String base64Data=Base64Utils.encodeToString(bytes);
+		return new Image(base64Data,w,h);
+		/*response.setContentType("image/png");
+		response.setCharacterEncoding("UTF-8");
+		OutputStream output = response.getOutputStream();
+		InputStream in = new ByteArrayInputStream(bytes);
+		int len;
+		byte[] buf = new byte[1024];
+		while ((len = in.read(buf)) != -1) {
+			output.write(buf, 0, len);
+		}
+		output.flush();*/
 	}
 
 	@Override
