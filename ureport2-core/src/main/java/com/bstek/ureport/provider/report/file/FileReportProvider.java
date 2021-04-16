@@ -47,6 +47,8 @@ public class FileReportProvider implements ReportProvider,ApplicationContextAwar
 	private String prefix="file:";
 	private String fileStoreDir;
 	private boolean disabled;
+
+	//ureport.properties中配置了fileStoreDir为WEB-INF/ureportfiles
 	@Override
 	public InputStream loadReport(String file) {
 		if(file.startsWith(prefix)){
