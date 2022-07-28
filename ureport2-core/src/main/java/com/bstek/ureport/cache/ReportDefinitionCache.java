@@ -24,4 +24,5 @@ import com.bstek.ureport.definition.ReportDefinition;
 public interface ReportDefinitionCache {
 	ReportDefinition getReportDefinition(String file);
 	void cacheReportDefinition(String file,ReportDefinition reportDefinition);
+    void clearCache();
 }

@@ -25,7 +25,7 @@ import com.bstek.ureport.definition.ReportDefinition;
  * @since 2016年12月4日
  */
 public class DefaultMemoryReportDefinitionCache implements ReportDefinitionCache {
-	private Map<String,ReportDefinition> reportMap=new ConcurrentHashMap<String,ReportDefinition>();
+	private Map<String,ReportDefinition> reportMap = new ConcurrentHashMap<String,ReportDefinition>();
 	@Override
 	public ReportDefinition getReportDefinition(String file) {
 		return reportMap.get(file);
@@ -37,4 +37,11 @@ public class DefaultMemoryReportDefinitionCache implements ReportDefinitionCache
 		}
 		reportMap.put(file, reportDefinition);
 	}
+
+	@Override
+	public void clearCache() {
+		this.reportMap.clear();
+	}
+
+
 }
