@@ -50,4 +50,7 @@
 	<bean id="ureport.httpSessionReportCache" class="com.bstek.ureport.console.cache.HttpSessionReportCache">
 		<property name="disabled" value="${ureport.disableHttpSessionReportCache}"></property>
 	</bean>
+
+	<bean id="ureport.ClearCacheServletAction" class="com.bstek.ureport.console.cache.ClearCacheServletAction">
+	</bean>
 </beans>
