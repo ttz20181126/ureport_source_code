@@ -168,7 +168,8 @@
 		</pluginManagement>
 	</build>
 
-	<distributionManagement>
+   <!--
+   <distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -177,7 +178,20 @@
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
+	</distributionManagement>-->
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<name>Nexus Release Repository</name>
+			<url>http://10.74.20.125:8081/repository/maven-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Nexus Snapshot Repository</name>
+			<url>http://10.74.20.125:8081/repository/maven-snapshots/</url>
+		</snapshotRepository>
 	</distributionManagement>
+
 
 	<name>UReport2 Parent Project</name>
 	<url>https://github.com/youseries/ureport/tree/master/ureport2-parent</url>
