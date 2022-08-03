@@ -131,7 +131,7 @@ public class ZxingValueCompute implements ValueCompute {
 	 * @param h
 	 * @return
 	 */
-	private Image buildImage(BarcodeFormat format,String data,int w,int h){
+	private Image buildImageByUreport(BarcodeFormat format,String data,int w,int h){
         try{
         	Map<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();  
             hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
@@ -168,7 +168,7 @@ public class ZxingValueCompute implements ValueCompute {
 	 * @param h
 	 * @return
 	 */
-	private Image buildImageZxing(BarcodeFormat format,String data,int w,int h){
+	private Image buildImage(BarcodeFormat format,String data,int w,int h){
 		try{
 			Map<EncodeHintType, Object> hints = new Hashtable<>();
 			hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
